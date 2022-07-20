@@ -11,65 +11,82 @@ Bonus: Can you do this in one pass?
 **************************************************************************************************/
 #include <iostream>
 #include <bits/stdc++.h>
+#include <chrono>
+#include <ctime>
+#include <ratio>
 
-//Returns if the array(second parameter) contains at least a pair which sum is given in the first parameter
-bool isTwoElemArraySum(int k, int array[], int length)
+//****************************************
+//  Naive solution: O(n^2) time complexity
+//****************************************
+//  Consider all possible pairs and check their sums
+bool isTwoElemArraySum_naive(int k, int array[], int length)
+{
+    // Returns if the array(second parameter) contains at least a pair which sum is given in the first parameter
+    int count = 0;
+    bool status = false;
+    // std::unordered_map<int, int> m;
+    int sum = 0;
+    for (int i = 0; i < length; i++)
+    {
+        for (int j = 0; j < length; j++)
+        {
+            sum = array[i] + array[j];
+            if (sum == k)
+            {
+                status = true;
+            }
+            else
+                continue;
+        }
+    }
+    return status;
+}
+
+//******************************************************************
+// Efficient solution: O(n) time complexity(only when searching...)
+//******************************************************************
+bool isTwoElemArraySum_eff(int k, int array[], int length)
+{
+    int count = 0;
+    bool status = false;
+    int twice_count = 0;
+    std::unordered_map<int, int> m;
+    // Store counts of all elements in map m
+    for (int i = 0; i < length; i++)
+        m[array[i]]++;
+
+    // iterate through each element and increment the
+    // count (Notice that every pair is counted twice)
+    for (int i = 0; i < length; i++)
+    {
+        twice_count += m[k - array[i]];
+        // es.: (k=17)-(array[0]=10) = 7 => m[7] = 1 => twice_count = 1
+        // es.: (k=17)-(array[3]=7) = 10 => m[10] = 1 => twice_count = 1 + 1
+
+        // if (arr[i], arr[i])
+        // pair satisfies the condition,
+        // then we need to ensure that the count is
+        // decreased by one such that the (arr[i], arr[i])
+        // pair is not considered
+        if (k - array[i] == array[i])
+            twice_count--; // if in the array there are more than one element equal to one another, the counter should be decreased
+    }
+    //(Notice that every pair is counted twice)
+    twice_count /= 2;
+
+    if (twice_count >= 1)
+        status = true;
+
+    return status;
+}
+//******************************************************************
+// Better solution: O(n) time complexity
+//******************************************************************
+bool isTwoElemArraySum_better(int k, int array[], int length)
 {
     int count = 0;
     bool status = false;
     std::unordered_map<int, int> m;
-
-    //****************************************
-    // Naive solution: O(n^2) time complexity
-    //****************************************
-    // Consider all possible pairs and check their sums
-    //int sum = 0;
-    //for (int i = 0; i < length; i++)
-    //{
-    //    for (int j = 0; j < length; j++)
-    //    {
-    //        sum = array[i] + array[j];
-    //        if (sum == k)
-    //        {
-    //            status = true;
-    //        }
-    //        else
-    //            continue;
-    //    }
-    //}
-
-    //******************************************************************
-    // Efficient solution: O(n) time complexity(only when searching...)
-    //******************************************************************
-    //int twice_count = 0; 
-    // Store counts of all elements in map m
-    //for (int i = 0; i < length; i++)
-    //    m[array[i]]++;
-
-    // iterate through each element and increment the
-    // count (Notice that every pair is counted twice)
-    //for (int i = 0; i < length; i++)
-    //{
-    //    twice_count += m[k - array[i]]; 
-        //es.: (k=17)-(array[0]=10) = 7 => m[7] = 1 => twice_count = 1
-        //es.: (k=17)-(array[3]=7) = 10 => m[10] = 1 => twice_count = 1 + 1
-
-        // if (arr[i], arr[i]) pair satisfies the condition,
-        // then we need to ensure that the count is
-        // decreased by one such that the (arr[i], arr[i])
-        // pair is not considered
-    //    if (k - array[i] == array[i])
-    //        twice_count--; // if in the array there are more than one element equal to one another, the counter should be decreased
-    //}
-    //(Notice that every pair is counted twice)
-    //twice_count /= 2;
-
-    //if (twice_count >= 1)
-    //    status = true;
-
-    //******************************************************************
-    // Better solution: O(n^2) time complexity (Find contains a for inside it's source code)
-    //******************************************************************
     for (int i = 0; i < length; i++)
     {
         if (m.find(k - array[i]) != m.end())
@@ -89,11 +106,38 @@ bool isTwoElemArraySum(int k, int array[], int length)
 int main()
 {
     int k = 17;
+    double duration;
     int numbers[4] = {10, 15, 3, 7};
     int n = sizeof(numbers) / sizeof(numbers[0]);
+    std::chrono::high_resolution_clock::time_point start, end;
+    std::chrono::duration<double> time_span;
 
-    if (isTwoElemArraySum(k, numbers, n))
+    start = std::chrono::high_resolution_clock::now();
+    if (isTwoElemArraySum_naive(k, numbers, n))
+    {
         std::cout << "True" << std::endl;
+    }
+    end = std::chrono::high_resolution_clock::now();
+    time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    std::cout << "The naive solution took: " << time_span.count() / (10^9) << "ns" << std::endl;
+
+    start = std::chrono::high_resolution_clock::now();
+    if (isTwoElemArraySum_eff(k, numbers, n))
+    {
+        std::cout << "True" << std::endl;
+    }
+    end = std::chrono::high_resolution_clock::now();
+    time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    std::cout << "The efficient solution took: " << time_span.count() / (10^9) << "ns" << std::endl;
+
+    start = std::chrono::high_resolution_clock::now();
+    if (isTwoElemArraySum_better(k, numbers, n))
+    {
+        std::cout << "True" << std::endl;
+    }
+    end = std::chrono::high_resolution_clock::now();
+    time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    std::cout << "The better solution took: " << time_span.count() / (10^9) << "ns" << std::endl;
 
     return 0;
 }
