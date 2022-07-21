@@ -15,6 +15,9 @@ Bonus: Can you do this in one pass?
 #include <ctime>
 #include <ratio>
 
+#define DIM 10000
+#define CONV_TO_MS 1000
+
 //****************************************
 //  Naive solution: O(n^2) time complexity
 //****************************************
@@ -80,7 +83,7 @@ bool isTwoElemArraySum_eff(int k, int array[], int length)
     return status;
 }
 //******************************************************************
-// Better solution: O(n) time complexity
+// Better solution: O(n) time complexity (worst case scenario O(n^2))
 //******************************************************************
 bool isTwoElemArraySum_better(int k, int array[], int length)
 {
@@ -105,39 +108,41 @@ bool isTwoElemArraySum_better(int k, int array[], int length)
 // Driver function to test the above function
 int main()
 {
-    int k = 17;
+    int k = rand() % 200;
     double duration;
-    int numbers[4] = {10, 15, 3, 7};
-    int n = sizeof(numbers) / sizeof(numbers[0]);
+    int numbers[DIM];
     std::chrono::high_resolution_clock::time_point start, end;
     std::chrono::duration<double> time_span;
 
-    start = std::chrono::high_resolution_clock::now();
-    if (isTwoElemArraySum_naive(k, numbers, n))
-    {
-        std::cout << "True" << std::endl;
-    }
-    end = std::chrono::high_resolution_clock::now();
-    time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-    std::cout << "The naive solution took: " << time_span.count() / (10^9) << "ns" << std::endl;
+    for (int i = 0; i < DIM; i++)
+        numbers[i] = rand() % 100;
 
     start = std::chrono::high_resolution_clock::now();
-    if (isTwoElemArraySum_eff(k, numbers, n))
+    if (isTwoElemArraySum_naive(k, numbers, DIM))
     {
         std::cout << "True" << std::endl;
     }
     end = std::chrono::high_resolution_clock::now();
     time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-    std::cout << "The efficient solution took: " << time_span.count() / (10^9) << "ns" << std::endl;
+    std::cout << "The naive solution took: " << time_span.count() * CONV_TO_MS << "ms" << std::endl;
 
     start = std::chrono::high_resolution_clock::now();
-    if (isTwoElemArraySum_better(k, numbers, n))
+    if (isTwoElemArraySum_eff(k, numbers, DIM))
     {
         std::cout << "True" << std::endl;
     }
     end = std::chrono::high_resolution_clock::now();
     time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
-    std::cout << "The better solution took: " << time_span.count() / (10^9) << "ns" << std::endl;
+    std::cout << "The efficient solution took: " << time_span.count() * CONV_TO_MS << "ms" << std::endl;
+
+    start = std::chrono::high_resolution_clock::now();
+    if (isTwoElemArraySum_better(k, numbers, DIM))
+    {
+        std::cout << "True" << std::endl;
+    }
+    end = std::chrono::high_resolution_clock::now();
+    time_span = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+    std::cout << "The better solution took: " << time_span.count() * CONV_TO_MS << "ms" << std::endl;
 
     return 0;
 }
